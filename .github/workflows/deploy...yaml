@@ -73,7 +73,6 @@ jobs:
             
             gcloud auth activate-service-account --key-file=/tmp/sa-key.json
             
-            # 為 root 用戶設定 Docker 認證
             ACCESS_TOKEN=\$(gcloud auth print-access-token)
             echo \$ACCESS_TOKEN | sudo docker login -u oauth2accesstoken --password-stdin $GAR_LOCATION-docker.pkg.dev
             
