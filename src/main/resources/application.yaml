@@ -5,13 +5,11 @@ spring:
     import:
       - kafka.yaml
   datasource:
-    # MySQL 配置
     url: jdbc:mysql://localhost:3306/CORE_BASE?useSSL=false&serverTimezone=Asia/Taipei
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
     password: St1120224@
 
-    # H2 配置（備用）
     # url: jdbc:h2:mem:testdb
     # driver-class-name: org.h2.Driver
     # username: sa
