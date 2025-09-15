@@ -5,7 +5,7 @@ spring:
     import:
       - kafka.yaml
   datasource:
-    url: jdbc:mysql://mysql-db:3306/CORE_BASE?useSSL=false&serverTimezone=Asia/Taipei
+    url: jdbc:mysql://mysql-db:3306/CORE_BASE?useSSL=false&serverTimezone=Asia/Taipei&allowPublicKeyRetrieval=true
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
     password: St1120224@
