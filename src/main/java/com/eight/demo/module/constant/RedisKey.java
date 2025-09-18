@@ -6,9 +6,10 @@ import lombok.Getter;
 public enum RedisKey {
 
     RATE_LIMITER("rate-limiter"),
-    WS_USER_SESSION("ws-user-session");
+    WS_USER_SESSION("ws-user-session"),
+    PUSH_OFFLINE("push-offline");
 
-    private String value;
+    private final String value;
 
     RedisKey(String value) {
         this.value = value;

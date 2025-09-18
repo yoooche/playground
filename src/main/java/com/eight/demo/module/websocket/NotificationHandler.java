@@ -1,5 +1,8 @@
 package com.eight.demo.module.websocket;
 
+import com.eight.demo.module.cache.RedisHelper;
+import com.eight.demo.module.constant.RedisKey;
+import java.util.List;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -19,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 public class NotificationHandler extends TextWebSocketHandler {
 
     private final DistributedSessionManager sessionManager;
+    private final RedisHelper redisHelper;
 
     /**
      * 建立連接：提取 userId 並註冊到分布式 session 管理器
@@ -28,6 +32,7 @@ public class NotificationHandler extends TextWebSocketHandler {
         var userId = getUserId(session);
         if (userId != null) {
             sessionManager.addSession(userId, session);
+            sendOfflineMessage(userId);
         } else {
             log.warn("UserId doesn't exist, closing connection");
             session.close();
@@ -74,5 +79,19 @@ public class NotificationHandler extends TextWebSocketHandler {
             log.warn("Error extracting userId", e);
         }
         return null;
+    }
+
+    private void sendOfflineMessage(Integer userId) {
+        try {
+            var msg = redisHelper.getList(RedisKey.PUSH_OFFLINE.getValue(), userId);
+            if (msg != null && !msg.isEmpty()) {
+                msg.forEach(message -> {
+                    sessionManager.sendMessage(userId, (String) message);
+                });
+                redisHelper.delete(RedisKey.PUSH_OFFLINE.getValue(), userId);
+            }
+        } catch (Exception e) {
+            log.warn("Failed to process offline message for user: {}", userId, e);
+        }
     }
 }
