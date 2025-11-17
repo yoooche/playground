@@ -1,0 +1,86 @@
+name: Deploy to GCE Instance
+
+on:
+  push:
+    branches: [ release ]
+  pull_request:
+    branches: [ release ]
+    types: [ closed ]
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  GAR_LOCATION: ${{ secrets.GCP_REGION }}
+  REPOSITORY: ${{ secrets.ARTIFACT_REPO }}
+  SERVICE: ${{ secrets.SERVICE }}
+  GCE_INSTANCE: ${{ secrets.GCE_INSTANCE_NAME }}
+  GCE_ZONE: ${{ secrets.GCE_ZONE }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      image-url: ${{ steps.build.outputs.image-url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Google Auth
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker to use gcloud
+        run: gcloud auth configure-docker $GAR_LOCATION-docker.pkg.dev --quiet
+
+      - name: Build and Push Docker image
+        id: build
+        run: |
+          IMAGE_URL=$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$SERVICE:$GITHUB_SHA
+          docker build -t $IMAGE_URL .
+          docker push $IMAGE_URL
+          echo "image-url=$IMAGE_URL" >> $GITHUB_OUTPUT
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Google Auth
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Setup SSH
+        run: |
+          gcloud compute config-ssh --quiet
+          gcloud compute ssh $GCE_INSTANCE --zone=$GCE_ZONE --command="echo 'SSH connection test successful'" || echo "First SSH connection failed, but should work on retry"
+
+      - name: Deploy to GCE Instance
+        run: |
+          IMAGE_URL=$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$SERVICE:$GITHUB_SHA
+          echo "Using image: $IMAGE_URL"
+          
+          gcloud compute scp $GOOGLE_APPLICATION_CREDENTIALS $GCE_INSTANCE:/tmp/sa-key.json --zone=$GCE_ZONE
+          
+          gcloud compute ssh $GCE_INSTANCE --zone=$GCE_ZONE --command="
+            export GOOGLE_CLOUD_PROJECT=$PROJECT_ID
+            export CLOUDSDK_CORE_PROJECT=$PROJECT_ID
+            
+            gcloud auth activate-service-account --key-file=/tmp/sa-key.json
+            
+            # 為 root 用戶設定 Docker 認證
+            ACCESS_TOKEN=\$(gcloud auth print-access-token)
+            echo \$ACCESS_TOKEN | sudo docker login -u oauth2accesstoken --password-stdin $GAR_LOCATION-docker.pkg.dev
+            
+            sudo docker stop $SERVICE || true
+            sudo docker rm $SERVICE || true
+            sudo docker pull $IMAGE_URL
+            sudo docker run -d --name $SERVICE --restart unless-stopped -p 8080:8080 $IMAGE_URL
+            
+            rm -f /tmp/sa-key.json
+          "

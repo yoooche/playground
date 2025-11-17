@@ -1,0 +1,52 @@
+spring:
+  application:
+    name: playground-module
+  config:
+    import:
+      - kafka.yaml
+      - redis-cache.yaml
+  datasource:
+    url: jdbc:mysql://localhost:3306/CORE_BASE?useSSL=false&serverTimezone=Asia/Taipei
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: St1120224@
+
+    # H2 配置（備用）
+    # url: jdbc:h2:mem:testdb
+    # driver-class-name: org.h2.Driver
+    # username: sa
+    # password:
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    show-sql: true
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:redis123456}
+      database: ${REDIS_DATABASE:0}
+      timeout: ${REDIS_TIMEOUT:2000}ms
+      lettuce:
+        pool:
+          max-active: ${REDIS_POOL_MAX_TOTAL:20}
+          max-idle: ${REDIS_POOL_MAX_IDLE:10}
+          min-idle: ${REDIS_POOL_MIN_IDLE:5}
+          max-wait: -1ms
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus,metrics
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    tags:
+      application: playground-module
+      environment: ${spring.profiles.active:local}

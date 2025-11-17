@@ -1,0 +1,4 @@
+redis:
+  caches:
+    - cache-name: rate-limiter
+      ttl: 5m
