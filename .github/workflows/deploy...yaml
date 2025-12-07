@@ -18,8 +18,6 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-    outputs:
-      image-url: ${{ steps.build.outputs.image-url }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -41,7 +39,6 @@ jobs:
           IMAGE_URL=$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$SERVICE:$GITHUB_SHA
           docker build -t $IMAGE_URL .
           docker push $IMAGE_URL
-          echo "image-url=$IMAGE_URL" >> $GITHUB_OUTPUT
 
   deploy:
     needs: build
@@ -73,14 +70,13 @@ jobs:
             
             gcloud auth activate-service-account --key-file=/tmp/sa-key.json
             
-            # 為 root 用戶設定 Docker 認證
             ACCESS_TOKEN=\$(gcloud auth print-access-token)
             echo \$ACCESS_TOKEN | sudo docker login -u oauth2accesstoken --password-stdin $GAR_LOCATION-docker.pkg.dev
             
             sudo docker stop $SERVICE || true
             sudo docker rm $SERVICE || true
             sudo docker pull $IMAGE_URL
-            sudo docker run -d --name $SERVICE --restart unless-stopped -p 8080:8080 $IMAGE_URL
+            sudo docker run -d --name $SERVICE --network playground-network --restart unless-stopped -p 8080:8080 $IMAGE_URL
             
             rm -f /tmp/sa-key.json
           "

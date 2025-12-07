@@ -2,3 +2,5 @@ redis:
   caches:
     - cache-name: rate-limiter
       ttl: 5m
+    - cache-name: push-offline
+      ttl: 5m

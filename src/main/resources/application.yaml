@@ -4,14 +4,12 @@ spring:
   config:
     import:
       - kafka.yaml
-      - redis-cache.yaml
   datasource:
-    url: jdbc:mysql://localhost:3306/CORE_BASE?useSSL=false&serverTimezone=Asia/Taipei
+    url: jdbc:mysql://mysql-db:3306/CORE_BASE?useSSL=false&serverTimezone=Asia/Taipei&allowPublicKeyRetrieval=true
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
     password: St1120224@
 
-    # H2 配置（備用）
     # url: jdbc:h2:mem:testdb
     # driver-class-name: org.h2.Driver
     # username: sa
@@ -37,16 +35,3 @@ spring:
           max-idle: ${REDIS_POOL_MAX_IDLE:10}
           min-idle: ${REDIS_POOL_MIN_IDLE:5}
           max-wait: -1ms
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,prometheus,metrics
-  endpoint:
-    health:
-      show-details: always
-  metrics:
-    tags:
-      application: playground-module
-      environment: ${spring.profiles.active:local}
