@@ -80,6 +80,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-websocket</artifactId>
         </dependency>
+        <dependency>
+            <artifactId>opencsv</artifactId>
+            <groupId>com.opencsv</groupId>
+            <version>5.9</version>
+        </dependency>
     </dependencies>
 
     <build>
