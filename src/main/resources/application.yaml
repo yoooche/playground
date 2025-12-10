@@ -5,15 +5,15 @@ spring:
     import:
       - kafka.yaml
   datasource:
-    url: jdbc:mysql://mysql-db:3306/CORE_BASE?useSSL=false&serverTimezone=Asia/Taipei&allowPublicKeyRetrieval=true
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    username: root
-    password: St1120224@
+#    url: jdbc:mysql://mysql-db:3306/CORE_BASE?useSSL=false&serverTimezone=Asia/Taipei&allowPublicKeyRetrieval=true
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+#    username: root
+#    password: St1120224@
 
-    # url: jdbc:h2:mem:testdb
-    # driver-class-name: org.h2.Driver
-    # username: sa
-    # password:
+     url: jdbc:h2:mem:testdb
+     driver-class-name: org.h2.Driver
+     username: sa
+     password:
 
   jpa:
     hibernate:
@@ -35,3 +35,10 @@ spring:
           max-idle: ${REDIS_POOL_MAX_IDLE:10}
           min-idle: ${REDIS_POOL_MIN_IDLE:5}
           max-wait: -1ms
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+      enabled: true
+  file:
+    upload-dir: ${user.dir}/uploads
