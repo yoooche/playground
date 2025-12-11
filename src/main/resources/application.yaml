@@ -24,9 +24,9 @@ spring:
 
   data:
     redis:
-      host: ${REDIS_HOST:localhost}
-      port: ${REDIS_PORT:6379}
-      password: ${REDIS_PASSWORD:redis123456}
+      host: ${REDIS_HOST:redis-16990.c299.asia-northeast1-1.gce.cloud.redislabs.com}
+      port: ${REDIS_PORT:16990}
+      password: ${REDIS_PASSWORD:7z1TddxycjxpUeWQHYhZrEs1qyXQKid4}
       database: ${REDIS_DATABASE:0}
       timeout: ${REDIS_TIMEOUT:2000}ms
       lettuce:
