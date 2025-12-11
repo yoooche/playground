@@ -85,6 +85,11 @@
             <groupId>com.opencsv</groupId>
             <version>5.9</version>
         </dependency>
+        <dependency>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <groupId>org.springdoc</groupId>
+            <version>2.8.13</version>
+        </dependency>
     </dependencies>
 
     <build>

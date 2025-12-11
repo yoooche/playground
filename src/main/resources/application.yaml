@@ -42,3 +42,14 @@ spring:
       enabled: true
   file:
     upload-dir: ${user.dir}/uploads
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    operations-sorter: method
+    tags-sorter: alpha
+    try-it-out-enabled: true
+  show-actuator: false
