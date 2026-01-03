@@ -17,7 +17,7 @@ public class WebSocketConfig implements WebSocketConfigurer {
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         registry.addHandler(notificationHandler, "/ws/notifications")
-                .setAllowedOrigins("*"); // 允許跨域
+                .setAllowedOrigins("*");
     }
 
 }

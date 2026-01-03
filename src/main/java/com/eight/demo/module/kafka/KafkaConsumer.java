@@ -29,6 +29,7 @@ public class KafkaConsumer {
 
     @KafkaListener(topics = Topic.DATA_TRANS_FLOW)
     public void processDataTransFlow(String content) {
+        notificationService.pushToSession(content);
         log.info("Receive topic [{}] and  message=[{}]", Topic.DATA_TRANS_FLOW, content);
     }
 }
