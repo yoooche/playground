@@ -26,4 +26,10 @@ public class KafkaConsumer {
             log.warn("Failed to process mail task", e);
         }
     }
+
+    @KafkaListener(topics = Topic.DATA_TRANS_FLOW)
+    public void processDataTransFlow(String content) {
+        notificationService.pushToSession(content);
+        log.info("Receive topic [{}] and  message=[{}]", Topic.DATA_TRANS_FLOW, content);
+    }
 }

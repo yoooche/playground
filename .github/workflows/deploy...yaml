@@ -76,7 +76,7 @@ jobs:
             sudo docker stop $SERVICE || true
             sudo docker rm $SERVICE || true
             sudo docker pull $IMAGE_URL
-            sudo docker run -d --name $SERVICE --network playground-network --restart unless-stopped -p 8080:8080 $IMAGE_URL
+            sudo docker run -d --name $SERVICE --network n8n-docker_default --restart unless-stopped -p 8080:8080 $IMAGE_URL
             
             rm -f /tmp/sa-key.json
           "
