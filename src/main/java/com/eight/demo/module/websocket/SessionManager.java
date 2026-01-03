@@ -12,11 +12,11 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class SessionManager {
 
-    private final ConcurrentHashMap<Integer, WebSocketSession> sessions = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, WebSocketSession> sessions = new ConcurrentHashMap<>();
 
-    public void addSession(Integer userId, WebSocketSession session) {
-        sessions.put(userId, session);
-        log.info("User {} connected", userId);
+    public void addSession(String sessionId, WebSocketSession session) {
+        sessions.put(sessionId, session);
+        log.info("User {} connected", sessionId);
     }
 
     public void removeSession(Integer userId) {
@@ -24,19 +24,16 @@ public class SessionManager {
         log.info("User {} disconnected", userId);
     }
 
-    public boolean sendMessage(Integer userId, String message) {
-        var session = sessions.get(userId);
+    public void sendMessage(String sessionId, String message) {
+        var session = sessions.get(sessionId);
         if (session != null && session.isOpen()) {
             try {
                 session.sendMessage(new TextMessage(message));
-                return true;
             } catch (Exception e) {
-                log.warn("Failed to send message to user {}", userId, e);
-                sessions.remove(userId);
-                return false;
+                log.warn("Failed to send message to user {}", sessionId, e);
+                sessions.remove(sessionId);
             }
         }
-        return false;
     }
 
     public boolean isOnline(Integer userId) {
