@@ -2,7 +2,6 @@ package com.eight.demo.module.service.impl;
 
 import com.eight.demo.module.cache.RedisHelper;
 import com.eight.demo.module.constant.RedisKey;
-import com.eight.demo.module.websocket.SessionManager;
 import org.springframework.stereotype.Service;
 
 import com.eight.demo.module.service.NotificationService;
@@ -19,7 +18,6 @@ public class NotificationServiceImpl implements NotificationService {
 
     private final DistributedSessionManager sessionManager;
     private final RedisHelper redisHelper;
-    private final SessionManager sessionLocalManager;
 
     @Override
     public void pushToUsers(NotificationTO notification) {
@@ -38,12 +36,6 @@ public class NotificationServiceImpl implements NotificationService {
         }
 
         log.info("Push result: {}/{} users received notification", success, total);
-    }
-
-    @Override
-    public void pushToSession(String sessionId) {
-        sessionLocalManager.sendMessage(sessionId, "Test");
-        log.info("TEST PUSH");
     }
 
     private void saveOfflineMessage(Integer userId, String msg) {

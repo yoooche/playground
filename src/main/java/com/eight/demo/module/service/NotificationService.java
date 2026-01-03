@@ -5,6 +5,4 @@ import com.eight.demo.module.to.NotificationTO;
 public interface NotificationService {
 
     void pushToUsers(NotificationTO notification);
-
-    void pushToSession(String message);
 }

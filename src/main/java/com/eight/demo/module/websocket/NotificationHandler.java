@@ -1,34 +1,41 @@
 package com.eight.demo.module.websocket;
 
-import com.eight.demo.module.utils.JsonUtils;
-import java.util.Map;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+/**
+ * WebSocket 處理器
+ * 負責處理 WebSocket 的連接、消息、斷開
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class NotificationHandler extends TextWebSocketHandler {
 
-    private final SessionManager sessionManager;
+    private final DistributedSessionManager sessionManager;
 
+    /**
+     * 建立連接：提取 userId 並註冊到分布式 session 管理器
+     */
     @Override
-    public void afterConnectionEstablished(@NonNull WebSocketSession session) throws Exception {
-        var sessionId = session.getId();
-        sessionManager.addSession(sessionId, session);
-        var payload = Map.of("sessionId", sessionId);
-        session.sendMessage(new TextMessage(JsonUtils.toJson(payload)));
-        log.info("New connection established, sessionId: {}", sessionId);
+    public void afterConnectionEstablished(WebSocketSession session) throws Exception {
+        var userId = getUserId(session);
+        if (userId != null) {
+            sessionManager.addSession(userId, session);
+        } else {
+            log.warn("UserId doesn't exist, closing connection");
+            session.close();
+        }
     }
 
     @Override
-    public void afterConnectionClosed(@NonNull WebSocketSession session, @NonNull CloseStatus status) {
+    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         var userId = getUserId(session);
         if (userId != null) {
             sessionManager.removeSession(userId);
@@ -36,14 +43,14 @@ public class NotificationHandler extends TextWebSocketHandler {
     }
 
     @Override
-    protected void handleTextMessage(@NonNull WebSocketSession session, TextMessage message) throws Exception {
+    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         var userId = getUserId(session);
         log.debug("Received from user {}: {}", userId, message.getPayload());
         session.sendMessage(new TextMessage("Echo: " + message.getPayload()));
     }
 
     @Override
-    public void handleTransportError(@NonNull WebSocketSession session, @NonNull Throwable exception) {
+    public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
         var userId = getUserId(session);
         log.error("Transport error for user {}", userId, exception);
         if (userId != null) {
